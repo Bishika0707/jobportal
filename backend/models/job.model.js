@@ -5,11 +5,6 @@ const jobSchema = new mongoose({
         required: true
     },
 
-    description: {
-        type: String,
-        required: true
-    },
-
     requirements: {
         type: String,
         required: true

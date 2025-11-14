@@ -111,7 +111,7 @@ export const updateProfile = async (req, res) => {
         const file = req.file;
         if (!fullname || !email || !phoneNumber || !bio || !skills) {
             return res.status(400).json({
-                message: "somehting is missing",
+                message: "something  is missing",
                 success: false
             });
         };
