@@ -23,19 +23,19 @@ const PORT = process.env.PORT || 3000;
 
 app.use("/api/v1/user", userRoute);
 
-app.get("/", (req, res) => res.send("Hello World"));
+// app.get("/", (req, res) => res.send("Hello World"));
 
-console.log(PORT);
+// console.log(PORT);
 
-connecttDB().then(() => {
-    app.listen(PORT, () => {
-        console.log(`server running at port ${PORT}`);
-    });
-}).catch((err) => {
-    console.log("Database connection failed", err);
-});
+// connecttDB().then(() => {
+//     app.listen(PORT, () => {
+//         console.log(`server running at port ${PORT}`);
+//     });
+// }).catch((err) => {
+//     console.log("Database connection failed", err);
+// });
 
-// app.listen(PORT,()=>{
-//     connecttDB();
-//     console.log(`server running at port ${PORT}`);
-// })
+app.listen(PORT,()=>{
+    connecttDB();
+    console.log(`server running at port ${PORT}`);
+ });
