@@ -1,6 +1,11 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import fs from "fs";
+import path from "path";
+import getDataUri from "../utils/datauri.js";
+import cloudinary from "../utils/cloudinary.js";
+
 export const register = async (req, res) => {
     try {
         const { fullname, email, phoneNumber, password, role } = req.body;
@@ -10,6 +15,11 @@ export const register = async (req, res) => {
                 success: false
             });
         };
+
+        const file = req.file;
+        const fileUri = getDataUri(file);
+        const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+
         const user = await User.findOne({ email });
         if (user) {
             return res.status(400).json({
@@ -25,7 +35,10 @@ export const register = async (req, res) => {
             phoneNumber,
             password: hashedPassword,
             role,
-        })
+            profile: {
+                profilePhoto: cloudResponse.secure_url,
+            }
+        });
 
         return res.status(201).json({
             message: "Account created successfully",
@@ -109,48 +122,63 @@ export const logout = async (req, res) => {
 export const updateProfile = async (req, res) => {
     try {
         const { fullname, email, phoneNumber, bio, skills } = req.body;
+        const userId = req.id;
+        const file = req.file;
 
-        let skillArray;
-        if (skills) {
-            skillArray = skills.split(",");
+        if (!userId) {
+            return res.status(401).json({ success: false, message: "Unauthorized" });
         }
 
-        const userId = req.id; // isAuthenticated must set req.id
-        let user = await User.findById(userId);
-
+        const user = await User.findById(userId);
         if (!user) {
-            return res.status(400).json({
-                message: "user not found",
-                success: false
-            });
+            return res.status(404).json({ success: false, message: "User not found" });
         }
+
+        if (!user.profile) user.profile = {};
 
         // update fields
         if (fullname) user.fullname = fullname;
         if (email) user.email = email;
         if (phoneNumber) user.phoneNumber = phoneNumber;
         if (bio) user.profile.bio = bio;
-        if (skills) user.profile.skills = skillArray;
+        if (skills) user.profile.skills = skills.split(",").map(s => s.trim());
 
-        // save
+        // upload PDF if file exists
+        if (file) {
+            const fileUri = getDataUri(file);
+
+            const cloudResponse = await cloudinary.uploader.upload(
+                fileUri.content,
+                {
+                    folder: "resumes",
+                    resource_type: "image", // 🔥 VERY IMPORTANT
+                    format: "pdf"
+                }
+            );
+            if (cloudResponse) {
+
+                user.profile.resume = cloudResponse.secure_url; // direct PDF URL
+                user.profile.resumeOriginalName = file.originalname;
+            }
+        }
+
         await user.save();
 
-        user = {
-            _id: user._id,
-            fullname: user.fullname,
-            email: user.email,
-            phoneNumber: user.phoneNumber,
-            role: user.role,
-            profile: user.profile
-        };
-
         return res.status(200).json({
-            message: "profile updated successfully.",
-            user,
-            success: true
+            success: true,
+            message: "Profile updated successfully",
+            user: {
+                _id: user._id,
+                fullname: user.fullname,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+                role: user.role,
+                profile: user.profile,
+            }
         });
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
+        return res.status(500).json({ success: false, message: "Something went wrong" });
     }
 };

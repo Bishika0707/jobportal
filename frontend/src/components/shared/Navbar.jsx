@@ -11,12 +11,34 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { LogOut, User2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Login from "../auth/login";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
+import axios from "axios";
+import { USER_API_END_POINT } from "@/utils/constant";
+import { setUser } from "@/redux/authSlice";
 
 const Navbar = () => {
   const { user } = useSelector(store => store.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate()
+
+
+  const logoutHandler = async () => {
+    try {
+      const res = await axios.get(`${USER_API_END_POINT}/logout`, { withCredentials: true });
+      if (res.data.success) {
+        dispatch(setUser(null));
+        navigate("/");
+        toast.success(res.data.message);
+
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
+    }
+  }
 
   return (
     <nav className="bg-white shadow-sm">
@@ -44,21 +66,19 @@ const Navbar = () => {
               <Popover>
                 <PopoverTrigger asChild>
                   <Avatar className="cursor-pointer">
-                    <AvatarImage src="https://github.com/shadcn.png" />
-                    <AvatarFallback>BC</AvatarFallback>
+                    <AvatarImage src={user?.profile?.profilePhoto} />                    <AvatarFallback>BC</AvatarFallback>
                   </Avatar>
                 </PopoverTrigger>
 
                 <PopoverContent className="w-80 p-4 space-y-4">
                   <div className="flex items-center gap-4">
                     <Avatar>
-                      <AvatarImage src="https://github.com/shadcn.png" />
-                      <AvatarFallback>BC</AvatarFallback>
+                      <AvatarImage src={user?.profile?.profilePhoto} />                      <AvatarFallback>BC</AvatarFallback>
                     </Avatar>
                     <div>
-                      <h4 className="font-medium">Bishika Chaudhary</h4>
+                      <h4 className="font-medium">{user?.fullname}</h4>
                       <p className="text-sm text-muted-foreground">
-                        Full-stack Developer
+                        {user?.profile?.bio}
                       </p>
                     </div>
                   </div>
@@ -73,7 +93,7 @@ const Navbar = () => {
 
                     <div className="flex w-fit items-center gap-2 cursor-pointer">
                       <LogOut />
-                      <Button variant="link" className="w-full">
+                      <Button onClick={logoutHandler} variant="link" className="w-full">
                         Logout
                       </Button>
                     </div>
