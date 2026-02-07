@@ -31,7 +31,7 @@ app.use("/api/v1/application", applicationRoute);
 
 app.get("/", (req, res) => res.send("Server is running"));
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
 
 connecttDB()
     .then(() => {

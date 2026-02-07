@@ -21,7 +21,7 @@ const CompanySetup = () => {
         location: "",
         file: null
     });
-    const {singleCompany} = useSelector(store=>store.company);
+    const { singleCompany } = useSelector(store => store.company);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -65,14 +65,18 @@ const CompanySetup = () => {
     }
 
     useEffect(() => {
-        setInput({
-            name: singleCompany.name || "",
-            description: singleCompany.description || "",
-            website: singleCompany.website || "",
-            location: singleCompany.location || "",
-            file: singleCompany.file || null
-        })
-    },[singleCompany]);
+        if (singleCompany) {
+            setInput({
+                name: singleCompany.name || "",
+                description: singleCompany.description || "",
+                website: singleCompany.website || "",
+                location: singleCompany.location || "",
+                file: null   // 🔥 always null
+            });
+        }
+    }, [singleCompany]);
+
+
 
     return (
         <div>
@@ -127,6 +131,7 @@ const CompanySetup = () => {
                             <Label>Logo</Label>
                             <Input
                                 type="file"
+                                name="file"
                                 accept="image/*"
                                 onChange={changeFileHandler}
                             />
