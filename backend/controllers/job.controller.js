@@ -1,6 +1,5 @@
 import { Job } from "../models/job.model.js";
 
-// admin post krega job
 export const postJob = async (req, res) => {
     try {
         const { title, description, requirements, salary, location, jobType, experience, position, companyId } = req.body;
@@ -33,7 +32,6 @@ export const postJob = async (req, res) => {
         console.log(error);
     }
 }
-// student k liye
 export const getAllJobs = async (req, res) => {
     try {
         const keyword = req.query.keyword || "";
@@ -78,7 +76,6 @@ export const getJobById = async (req, res) => {
         console.log(error);
     }
 }
-// admin kitne job create kra hai abhi tk
 export const getAdminJobs = async (req, res) => {
     try {
         const adminId = req.id;
@@ -161,7 +158,6 @@ export const deleteJob = async (req, res) => {
   try {
     const jobId = req.params.id;
 
-    // 1️⃣ Check if job exists
     const job = await Job.findById(jobId);
     if (!job) {
       return res.status(404).json({
@@ -170,7 +166,6 @@ export const deleteJob = async (req, res) => {
       });
     }
 
-    // 2️⃣ Optional: only allow creator/admin to delete
     if (job.created_by.toString() !== req.id && req.user.role !== "admin") {
       return res.status(403).json({
         message: "You are not authorized to delete this job",
@@ -178,7 +173,6 @@ export const deleteJob = async (req, res) => {
       });
     }
 
-    // 3️⃣ Delete the job
     await Job.findByIdAndDelete(jobId);
 
     return res.status(200).json({

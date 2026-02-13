@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 
-/* ================= REGISTER ================= */
 export const register = async (req, res) => {
   try {
     const { fullname, email, phoneNumber, password, role } = req.body;
@@ -54,7 +53,6 @@ export const register = async (req, res) => {
   }
 };
 
-/* ================= LOGIN ================= */
 export const login = async (req, res) => {
   try {
     const { email, password, role } = req.body;
@@ -106,9 +104,9 @@ export const login = async (req, res) => {
 
     return res
       .cookie("token", token, {
-        httpOnly: true,        // ✅ FIXED
+        httpOnly: true,        
         sameSite: "strict",
-        secure: false,         // true in production (https)
+        secure: false,         
         maxAge: 24 * 60 * 60 * 1000
       })
       .status(200)
@@ -124,14 +122,13 @@ export const login = async (req, res) => {
   }
 };
 
-/* ================= LOGOUT ================= */
 export const logout = async (req, res) => {
   try {
     return res
       .clearCookie("token", {
         httpOnly: true,
         sameSite: "strict",
-        secure: false // true in production
+        secure: false 
       })
       .status(200)
       .json({
@@ -144,7 +141,6 @@ export const logout = async (req, res) => {
   }
 };
 
-/* ================= UPDATE PROFILE ================= */
 export const updateProfile = async (req, res) => {
   try {
     const { fullname, email, phoneNumber, bio, skills } = req.body;
@@ -166,15 +162,10 @@ export const updateProfile = async (req, res) => {
 
     if (req.file) {
       const fileUri = getDataUri(req.file);
-
-      const cloudResponse = await cloudinary.uploader.upload(fileUri.content, {
-        resource_type: req.file.mimetype === "application/pdf" ? "raw" : "auto"
-      });
-
+      const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
       user.profile.resume = cloudResponse.secure_url;
       user.profile.resumeOriginalName = req.file.originalname;
     }
-
 
     await user.save();
 

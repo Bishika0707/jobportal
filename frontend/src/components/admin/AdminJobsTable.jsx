@@ -26,7 +26,6 @@ const AdminJobsTable = () => {
         setFilterJobs(filteredJobs)
     }, [allAdminJobs, searchJobByText])
 
-    // 🔥 Delete job
     const deleteJobHandler = async (jobId) => {
         if (!window.confirm("Are you sure you want to delete this job?")) return
 

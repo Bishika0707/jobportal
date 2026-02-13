@@ -36,7 +36,7 @@ export const registerCompany = async (req, res) => {
 }
 export const getCompany = async (req, res) => {
   try {
-    const userId = req.id; // logged in user id
+    const userId = req.id; 
     const companies = await Company.find({ userId });
     if (!companies) {
       return res.status(404).json({
@@ -75,7 +75,6 @@ export const updateCompany = async (req, res) => {
   try {
     const { name, description, website, location } = req.body;
 
-    // Check duplicate name (exclude current company)
     if (name) {
       const existingCompany = await Company.findOne({
         name,
@@ -113,7 +112,6 @@ export const updateCompany = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    // Fallback for duplicate error (safety net)
     if (error.code === 11000) {
       return res.status(400).json({
         message: "Company name already exists.",
@@ -132,7 +130,6 @@ export const deleteCompany = async (req, res) => {
   try {
     const companyId = req.params.id;
 
-    // 1️⃣ Check if company exists
     const company = await Company.findById(companyId);
     if (!company) {
       return res.status(404).json({
@@ -141,10 +138,8 @@ export const deleteCompany = async (req, res) => {
       });
     }
 
-    // 2️⃣ Delete all jobs associated with this company
     await Job.deleteMany({ company: companyId });
 
-    // 3️⃣ Delete the company itself
     await Company.findByIdAndDelete(companyId);
 
     return res.status(200).json({
