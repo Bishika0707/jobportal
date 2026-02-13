@@ -8,10 +8,12 @@ import { Label } from './ui/label'
 import AppliedJobTable from './AppliedJobTable'
 import UpdateProfileDialog from './updateProfileDialog'
 import { useSelector } from 'react-redux'
+import useGetAppliedJobs from '@/hooks/useGetAppliedJobs'
 
 
 function Profile() {
 
+  useGetAppliedJobs();
   const [open, setOpen] = useState(false)
 
 
@@ -26,7 +28,7 @@ function Profile() {
           <div className='flex items-center gap-4'>
             <Avatar className="h-24 w-24">
               <AvatarImage
-                src="https://www.bing.com/th/id/OIP.kPWcRMSboc3zUi94Oh3sTAHaHa?w=195&h=211&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2"
+                src={user?.profile?.profilePhoto}
                 alt="profile"
               />
             </Avatar>

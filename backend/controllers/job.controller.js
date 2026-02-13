@@ -65,7 +65,7 @@ export const getJobById = async (req, res) => {
     try {
         const jobId = req.params.id;
         const job = await Job.findById(jobId).populate({
-            path:"applications"
+            path: "applications"
         });
         if (!job) {
             return res.status(404).json({
@@ -83,8 +83,8 @@ export const getAdminJobs = async (req, res) => {
     try {
         const adminId = req.id;
         const jobs = await Job.find({ created_by: adminId }).populate({
-            path:'company',
-            createdAt:-1
+            path: 'company',
+            createdAt: -1
         });
         if (!jobs) {
             return res.status(404).json({
@@ -100,3 +100,96 @@ export const getAdminJobs = async (req, res) => {
         console.log(error);
     }
 }
+
+export const updateJob = async (req, res) => {
+    try {
+        const jobId = req.params.id;
+        const {
+            title,
+            description,
+            requirements,
+            salary,
+            location,
+            jobType,
+            experience,
+            position,
+            companyId
+        } = req.body;
+
+        const updateData = {};
+
+        if (title) updateData.title = title;
+        if (description) updateData.description = description;
+        if (requirements) updateData.requirements = requirements.split(",");
+        if (salary) updateData.salary = Number(salary);
+        if (location) updateData.location = location;
+        if (jobType) updateData.jobType = jobType;
+        if (experience) updateData.experienceLevel = experience;
+        if (position) updateData.position = position;
+        if (companyId) updateData.company = companyId;
+
+        const job = await Job.findByIdAndUpdate(
+            jobId,
+            updateData,
+            { new: true }
+        );
+
+        if (!job) {
+            return res.status(404).json({
+                message: "Job not found",
+                success: false
+            });
+        }
+
+        return res.status(200).json({
+            message: "Job updated successfully",
+            job,
+            success: true
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: "Server error",
+            success: false
+        });
+    }
+};
+
+
+export const deleteJob = async (req, res) => {
+  try {
+    const jobId = req.params.id;
+
+    // 1️⃣ Check if job exists
+    const job = await Job.findById(jobId);
+    if (!job) {
+      return res.status(404).json({
+        message: "Job not found",
+        success: false,
+      });
+    }
+
+    // 2️⃣ Optional: only allow creator/admin to delete
+    if (job.created_by.toString() !== req.id && req.user.role !== "admin") {
+      return res.status(403).json({
+        message: "You are not authorized to delete this job",
+        success: false,
+      });
+    }
+
+    // 3️⃣ Delete the job
+    await Job.findByIdAndDelete(jobId);
+
+    return res.status(200).json({
+      message: "Job deleted successfully",
+      success: true,
+    });
+  } catch (error) {
+    console.error("DELETE JOB ERROR 👉", error);
+    return res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
+  }
+};

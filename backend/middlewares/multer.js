@@ -2,5 +2,5 @@ import multer from "multer";
 
 const storage = multer.memoryStorage(); // store files in memory before sending to Cloudinary
 
-export const singleUpload = multer({ storage }).single("file");
+export const singleUpload = multer({ storage }).single("resume");
 // "logo" should match frontend input field name
